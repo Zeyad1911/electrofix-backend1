@@ -10,7 +10,7 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-  final _formKey = GlobalKey<FormState>();
+  final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -35,9 +35,10 @@ class _SignupPageState extends State<SignupPage> {
         ),
         body: Center(
           child: Form(
+            key: formKey,
             child: Column(
               children: [
-                UsernameField(
+                SignupField(
                     hintText: 'User name',
                     controller: nameController,
                     validator: (value) {
@@ -45,24 +46,64 @@ class _SignupPageState extends State<SignupPage> {
                         return 'Username cannot be empty.';
                       } else if (value.length < 4) {
                         return 'Username must be at least 4 characters long.';
-                      } else if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value)) {
-                        return 'Username can only contain letters, numbers, and underscores.';
+                      } else if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+                        return 'Username can only contain letters.';
+                      } else {
+                        return null;
                       }
-                      print('good');
+                    },
+                    onSaved: (value) => value),
+                SignupField(
+                    hintText: 'Email',
+                    controller: emailController,
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Email address cannot be empty.';
+                      } else if (!RegExp(r'^[^\s@]+@[^\s@]+\.com$')
+                          .hasMatch(value)) {
+                        return 'Please enter a valid email address';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) => value),
+                SignupField(
+                    hintText: 'Password',
+                    controller: passwordController,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Password cannot be empty.';
+                      } else if (value.length < 6) {
+                        return 'Password must be at least 6 characters long.';
+                      } else if (!RegExp(r'[A-Z]').hasMatch(value)) {
+                        return 'Password must contain at least one uppercase letter.';
+                      } else if (!RegExp(r'[a-z]').hasMatch(value)) {
+                        return 'Password must contain at least one lowercase letter.';
+                      } else if (!RegExp(r'\d').hasMatch(value)) {
+                        return 'Password must contain at least one digit.';
+                      } else if (!RegExp(r'[!@#$%^&*(),.?":{}|<>]')
+                          .hasMatch(value)) {
+                        return 'Password must contain at least one special character.';
+                      }
+                      return null;
+                    },
+                    onSaved: (value) => value),
+                SignupField(
+                    hintText: 'Confirm password',
+                    controller: confPasswordController,
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'Confirm password cannot be empty.';
+                      } else if (value != confPasswordController.text) {
+                        return 'Passwords do not match.';
+                      }
                       return null;
                     },
                     onSaved: (value) => value),
                 TextButton(
                     onPressed: () {
-                      if (_formKey.currentState != null) {
-                        final form = _formKey
-                            .currentState!; // Now safe to access after check
-                        if (form.validate()) {
-                          print('valid');
-                        }
-                      } else {
-                        // Handle the case where the form is not yet initialized (optional)
-                      }
+                      final form = formKey.currentState!;
+
+                      if (form.validate()) {}
                     },
                     child: Text("Submit"))
               ],
